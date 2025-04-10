@@ -1,2 +1,2 @@
 # CarPooler
-Ride Sharing Platform
+Ride Sharing Platform For People
