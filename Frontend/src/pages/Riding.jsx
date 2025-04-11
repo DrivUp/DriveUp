@@ -1,19 +1,19 @@
 import React from 'react'
 import { Link, useLocation } from 'react-router-dom' // Added useLocation
 import { useEffect, useContext } from 'react'
-import { SocketContext } from '../context/SocketContext'
+// import { SocketContext } from '../context/SocketContext'
 import { useNavigate } from 'react-router-dom'
-import LiveTracking from '../components/LiveTracking'
+// import LiveTracking from '../components/LiveTracking'
 
 const Riding = () => {
     const location = useLocation()
     const { ride } = location.state || {} // Retrieve ride data
-    const { socket } = useContext(SocketContext)
+    // const { socket } = useContext(SocketContext)
     const navigate = useNavigate()
 
-    socket.on("ride-ended", () => {
-        navigate('/home')
-    })
+    // socket.on("ride-ended", () => {
+    //     navigate('/home')
+    // })
 
 
     return (
@@ -22,7 +22,7 @@ const Riding = () => {
                 <i className="text-lg font-medium ri-home-5-line"></i>
             </Link>
             <div className='h-1/2'>
-                <LiveTracking />
+                {/* <LiveTracking /> */}
 
             </div>
             <div className='h-1/2 p-4'>
