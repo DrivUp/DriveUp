@@ -1,22 +1,24 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react'
 import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import {UserDataContext} from '../context/UserContext.jsx';
+
 
 const UserSignup = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [firstName, setFirstName] = useState('');
-  const [lastName, setLastName] = useState('');
-  const [userData, setUserData] = useState({});
+  const [firstname, setFirstName] = useState('');
+  const [lastname, setLastName] = useState('');
   const navigate = useNavigate();
 
+  const {user, setUser} = useContext(UserDataContext);
   const submitHandler = async (e) => {
     e.preventDefault();
 
-    const setUserData = {
-      fullName: {
-        firstName: firstName,
-        lastName: lastName,
+    const newUser = {
+      fullname: {
+        firstname: firstname,
+        lastname: lastname,
       },
       email,
       password,
@@ -26,10 +28,11 @@ const UserSignup = () => {
 
     if (response.status === 201) {
       const data = response.data;
+      setUser(data.user);
       localStorage.setItem('token', data.token);
       navigate('/home');
     }
-
+    
     setEmail('');
     setPassword('');
     setFirstName('');
@@ -45,7 +48,9 @@ const UserSignup = () => {
           <p className="text-gray-500 text-sm mt-1">Enjoy the rides</p>
         </div>
 
-        <form onSubmit={submitHandler} className="space-y-5">
+        <form onSubmit={(e)=>{
+          submitHandler(e)}
+         } className="space-y-5">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1 ">
               Full Name
@@ -56,7 +61,7 @@ const UserSignup = () => {
                 required
                 placeholder="First Name"
                 className="w-1/2 px-4 py-2 rounded-lg bg-gray-100 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-100"
-                value={firstName}
+                value={firstname}
                 onChange={(e) => setFirstName(e.target.value)}
               />
               <input
@@ -64,7 +69,7 @@ const UserSignup = () => {
                 required
                 placeholder="Last Name"
                 className="w-1/2 px-4 py-2 rounded-lg bg-gray-100 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-100"
-                value={lastName}
+                value={lastname}
                 onChange={(e) => setLastName(e.target.value)}
               />
             </div>
