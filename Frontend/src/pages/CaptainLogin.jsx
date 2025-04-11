@@ -4,35 +4,34 @@ import logo from '../assets/logo.png';
 import { useState, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-// import { UserDataContext } from '../context/UserContext'
+import { CaptainDataContext } from '../context/CaptainContext';
 const  CaptainLogin = () => {
     const [ email, setEmail ] = useState('')
   const [ password, setPassword ] = useState('')
-  const [ captainData, setCaptainData ] = useState({})
-
+  const navigate = useNavigate()
+  const { captain, setCaptain } = useContext(CaptainDataContext)
 //   const { user, setUser } = useContext(UserDataContext)
 const submitHandler = async (e) => {
     e.preventDefault();
 
-    const userData = {
+    const captain = {
       email: email,
       password: password
     }
 
-    const response = await axios.post(`${import.meta.env.VITE_BASE_URL}/users/login`, captainData)
+    const response = await axios.post(`${import.meta.env.VITE_BASE_URL}/captains/login`, captain)
 
     if (response.status === 200) {
       const data = response.data
-      setUser(data.user)
+      setCaptain(data.captain)
       localStorage.setItem('token', data.token)
-      navigate('/home')
+      navigate('/captain-home')
     }
 
 
     setEmail('')
     setPassword('')
   }
-  const navigate = useNavigate()
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-r from-[#f0f0f0] to-[#e8e8e8] px-4 py-10">
       <div className="w-full max-w-md bg-white shadow-2xl rounded-xl p-8 sm:p-10">

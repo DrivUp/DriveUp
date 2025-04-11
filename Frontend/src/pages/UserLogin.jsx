@@ -1,17 +1,20 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
+import React, { useState, useContext } from 'react'
 import logo from '../assets/logo.png';
-import { useState, useContext } from 'react';
-import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
-// import { UserDataContext } from '../context/UserContext'
-const UserLogin = () => {
-    const [ email, setEmail ] = useState('')
-  const [ password, setPassword ] = useState('')
-  const [ userData, setUserData ] = useState({})
+import { Link } from 'react-router-dom'
+import { UserDataContext } from '../context/UserContext'
+import { useNavigate } from 'react-router-dom'
+import axios from 'axios'
 
-//   const { user, setUser } = useContext(UserDataContext)
-const submitHandler = async (e) => {
+const UserLogin = () => {
+  const [ email, setEmail ] = useState('')
+  const [ password, setPassword ] = useState('')
+
+  const { user, setUser } = useContext(UserDataContext)
+  const navigate = useNavigate()
+
+
+
+  const submitHandler = async (e) => {
     e.preventDefault();
 
     const userData = {
@@ -32,7 +35,7 @@ const submitHandler = async (e) => {
     setEmail('')
     setPassword('')
   }
-  const navigate = useNavigate()
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-r from-[#f0f0f0] to-[#e8e8e8] px-4 py-10">
       <div className="w-full max-w-md bg-white shadow-2xl rounded-xl p-8 sm:p-10">
