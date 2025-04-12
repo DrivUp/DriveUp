@@ -1,5 +1,5 @@
 import userModel from "../models/user.model.js";
-import blackListTokenModel from "../models/blackListToken.model.js";
+import blackListTokenModel from "../models/blacklistToken.model.js";
 import jwt from "jsonwebtoken";
 import captainModel from "../models/captain.model.js";
 
