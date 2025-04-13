@@ -7,20 +7,20 @@ import { getDistanceTime } from '../controllers/map.controller.js';
 import { getAutoCompleteSuggestions } from '../controllers/map.controller.js';
 
 router.get('/get-coordinates',
-    query('address').isString().isLength({ min: 3 }),
+    query('address').isString().isLength({ min: 2 }),
     authUser,
     getCoordinates
 );
 
 router.get('/get-distance-time',
-    query('origin').isString().isLength({ min: 3 }),
-    query('destination').isString().isLength({ min: 3 }),
+    query('origin').isString().isLength({ min: 2 }),
+    query('destination').isString().isLength({ min: 2 }),
     authUser,
     getDistanceTime
 )
 
 router.get('/get-suggestions',
-    query('input').isString().isLength({ min: 3 }),
+    query('input').isString().isLength({ min: 2 }),
     authUser,
     getAutoCompleteSuggestions
 )
