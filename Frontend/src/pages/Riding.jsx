@@ -1,19 +1,19 @@
 import React from 'react'
 import { Link, useLocation } from 'react-router-dom' // Added useLocation
 import { useEffect, useContext } from 'react'
-// import { SocketContext } from '../context/SocketContext'
+import { SocketContext } from '../context/SocketContext.jsx'
 import { useNavigate } from 'react-router-dom'
 // import LiveTracking from '../components/LiveTracking'
 
 const Riding = () => {
     const location = useLocation()
     const { ride } = location.state || {} // Retrieve ride data
-    // const { socket } = useContext(SocketContext)
+    const { socket } = useContext(SocketContext)
     const navigate = useNavigate()
 
-    // socket.on("ride-ended", () => {
-    //     navigate('/home')
-    // })
+    socket.on("ride-ended", () => {
+        navigate('/home')
+    })
 
 
     return (
@@ -50,7 +50,7 @@ const Riding = () => {
                             <i className="ri-currency-line"></i>
                             <div>
                                 <h3 className='text-lg font-medium'>₹{ride?.fare} </h3>
-                                <p className='text-sm -mt-1 text-gray-600'>Cash Cash</p>
+                                <p className='text-sm -mt-1 text-gray-600'>Cash </p>
                             </div>
                         </div>
                     </div>

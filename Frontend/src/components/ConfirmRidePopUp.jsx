@@ -7,7 +7,7 @@ const ConfirmRidePopUp = (props) => {
     const [ otp, setOtp ] = useState('')
     const navigate = useNavigate()
 
-    const submitHander = async (e) => {
+    const submitHandler = async (e) => {
         e.preventDefault()
 
         const response = await axios.get(`${import.meta.env.VITE_BASE_URL}/rides/start-ride`, {
@@ -61,13 +61,13 @@ const ConfirmRidePopUp = (props) => {
                         <i className="ri-currency-line"></i>
                         <div>
                             <h3 className='text-lg font-medium'>₹{props.ride?.fare} </h3>
-                            <p className='text-sm -mt-1 text-gray-600'>Cash Cash</p>
+                            <p className='text-sm -mt-1 text-gray-600'>Cash </p>
                         </div>
                     </div>
                 </div>
 
                 <div className='mt-6 w-full'>
-                    <form onSubmit={submitHander}>
+                    <form onSubmit={submitHandler}>
                         <input value={otp} onChange={(e) => setOtp(e.target.value)} type="text" className='bg-[#eee] px-6 py-4 font-mono text-lg rounded-lg w-full mt-3' placeholder='Enter OTP' />
 
                         <button className='w-full mt-5 text-lg flex justify-center bg-green-600 text-white font-semibold p-3 rounded-lg'>Confirm</button>
