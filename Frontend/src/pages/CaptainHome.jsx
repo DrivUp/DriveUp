@@ -31,13 +31,13 @@ const CaptainHome = () => {
             if (navigator.geolocation) {
                 navigator.geolocation.getCurrentPosition(position => {
 
-                    socket.emit('update-location-captain', {
-                        userId: captain._id,
-                        location: {
-                            ltd: position.coords.latitude,
-                            lng: position.coords.longitude
-                        }
-                    })
+                    // socket.emit('update-location-captain', {
+                    //     userId: captain._id,
+                    //     location: {
+                    //         ltd: position.coords.latitude,
+                    //         lng: position.coords.longitude
+                    //     }
+                    // })
                 })
             }
         }

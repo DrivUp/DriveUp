@@ -1,7 +1,7 @@
 import rideModel from "../models/ride.model.js";
 import {getDistanceTime1} from "../services/maps.service.js";
 import crypto from "crypto";
-async function getFare(pickup, destination) {
+export async function getFare(pickup, destination) {
 
     if (!pickup || !destination) {
         throw new Error('Pickup and destination are required');

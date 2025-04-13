@@ -12,7 +12,7 @@ import WaitingForDriver from '../components/WaitingForDriver';
 import { useContext } from 'react';
 import { UserDataContext } from '../context/UserContext';
 import { useNavigate } from 'react-router-dom';
-//import LiveTracking from '../components/LiveTracking';
+// import LiveTracking from '../components/LiveTracking';
 
 const Home = () => {
     const [ pickup, setPickup ] = useState('')
@@ -36,27 +36,8 @@ const Home = () => {
     const [ ride, setRide ] = useState(null)
 
     const navigate = useNavigate()
-
-    // const { socket } = useContext(SocketContext)
     const { user } = useContext(UserDataContext)
 
-    // useEffect(() => {
-    //     socket.emit("join", { userType: "user", userId: user._id })
-    // }, [ user ])
-
-    // socket.on('ride-confirmed', ride => {
-
-
-    //     setVehicleFound(false)
-    //     setWaitingForDriver(true)
-    //     setRide(ride)
-    // })
-
-    // socket.on('ride-started', ride => {
-    //     console.log("ride")
-    //     setWaitingForDriver(false)
-    //     navigate('/riding', { state: { ride } }) // Updated navigate to include ride data
-    // })
 
 
     const handlePickupChange = async (e) => {
@@ -71,7 +52,6 @@ const Home = () => {
             })
             setPickupSuggestions(response.data)
         } catch {
-            // handle error
         }
     }
 
@@ -86,7 +66,7 @@ const Home = () => {
             })
             setDestinationSuggestions(response.data)
         } catch {
-            // handle error
+           
         }
     }
 
@@ -182,28 +162,30 @@ const Home = () => {
 
 
     }
-
     async function createRide() {
-        const response = await axios.post(`${import.meta.env.VITE_BASE_URL}/rides/create`, {
-            pickup,
-            destination,
-            vehicleType
-        }, {
-            headers: {
-                Authorization: `Bearer ${localStorage.getItem('token')}`
-            }
-        })
-
-
+        try {
+            const response = await axios.post(`${import.meta.env.VITE_BASE_URL}/rides/create`, {
+                pickup,
+                destination,
+                vehicleType
+            }, {
+                headers: {
+                    Authorization: `Bearer ${localStorage.getItem('token')}`
+                }
+            })
+            console.log('Create Ride Response:', response.data)
+        } catch (error) {
+            console.error('Error creating ride:', error)
+        }
     }
 
     return (
         <div className='h-screen relative overflow-hidden'>
             <img className='w-16 absolute left-5 top-5' src="https://upload.wikimedia.org/wikipedia/commons/c/cc/Uber_logo_2018.png" alt="" />
-            <div className='h-screen w-screen'>
+            {/* <div className='h-screen w-screen'>
                 {/* image for temporary use  */}
-                {/* <LiveTracking /> */}
-            </div>
+                {/* <LiveTracking />
+            </div> */} 
             <div className=' flex flex-col justify-end h-screen absolute top-0 w-full'>
                 <div className='h-[30%] p-6 bg-white relative'>
                     <h5 ref={panelCloseRef} onClick={() => {
