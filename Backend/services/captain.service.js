@@ -19,7 +19,11 @@ export const createCaptain = async ({
             plate,
             capacity,
             vehicleType
-        }
+        },
+        // location:{
+        //     ltd:25.443920,
+        //     lng:81.825027
+        // }
     })
 
     return captain;
