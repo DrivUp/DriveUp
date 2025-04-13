@@ -48,10 +48,14 @@ export function initializeSocket(server) {
 }
 
 
-export function sendMessageToSocketId(socketId, event, message) {
-    if (io) {
-        io.to(socketId).emit(event, message);
-    } else {
-        console.error('Socket.IO is not initialized.');
+export const sendMessageToSocketId = (socketId, messageObject) => {
+
+    console.log(messageObject);
+    
+        if (io) {
+            io.to(socketId).emit(messageObject.event, messageObject.data);
+        } else {
+            console.log('Socket.io not initialized.');
+        }
     }
-}
+    
