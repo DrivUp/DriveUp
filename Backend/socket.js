@@ -40,7 +40,48 @@ export function initializeSocket(server) {
                 }
             });
         });
+        socket.on('send_message', async (data) => {
+            const { fromId, fromType, toId, toType, message } = data;
 
+            let toSocketId;
+
+            if (toType === 'user') {
+                const user = await userModel.findById(toId);
+                toSocketId = user?.socketId;
+            } else if (toType === 'captain') {
+                const captain = await captainModel.findById(toId);
+                toSocketId = captain?.socketId;
+            }
+
+            if (toSocketId) {
+                io.to(toSocketId).emit('receive_message', {
+                    fromId,
+                    fromType,
+                    message
+                });
+            } else {
+                console.log(`Recipient (${toId}) is not connected.`);
+            }
+        });
+        socket.on('send-message', async ({ fromId, toId, message, senderType }) => {
+            // Get recipient socketId
+            let recipient;
+            if (senderType === 'user') {
+                recipient = await captainModel.findById(toId);
+            } else {
+                recipient = await userModel.findById(toId);
+            }
+        
+            const socketId = recipient?.socketId;
+            if (socketId) {
+                io.to(socketId).emit('receive-message', {
+                    fromId,
+                    message,
+                    senderType
+                });
+            }
+        });
+        
         socket.on('disconnect', () => {
             console.log(`Client disconnected: ${socket.id}`);
         });
@@ -57,5 +98,4 @@ export const sendMessageToSocketId = (socketId, messageObject) => {
         } else {
             console.log('Socket.io not initialized.');
         }
-    }
-    
+    }  
