@@ -66,7 +66,26 @@ const captainSchema = new mongoose.Schema({
         lng: {
             type: Number,
         }
-    }
+    },
+    tripsCompleted: {
+        type: Number,
+        default: 0,
+    },
+    avgRating: {
+        type: Number,
+        default: 5.0,
+        min: 1,
+        max: 5,
+    },
+    totalEarnings: {
+        type: Number,
+        default: 0,
+    },
+    
+    totalDistance: {
+        type: Number,
+        default: 0,
+    },
 })
 
 

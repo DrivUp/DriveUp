@@ -29,7 +29,7 @@ router.post('/login', [
 )
 
 
-router.get('/profile',authCaptain, getCaptainProfile)
+router.get('/captain-profile',authCaptain, getCaptainProfile)
 
 router.get('/logout',authCaptain, logoutCaptain)
 
