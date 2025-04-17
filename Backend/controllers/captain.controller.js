@@ -67,8 +67,18 @@ export const loginCaptain = async (req, res, next) => {
 }
 
 export const getCaptainProfile = async (req, res, next) => {
-    res.status(200).json({ captain: req.captain });
+    try {
+        const captain = await captainModel.findById(req.captain._id).select('-password'); // exclude password
+        if (!captain) {
+            return res.status(404).json({ message: 'Captain not found' });
+        }
+
+        res.status(200).json({ captain });
+    } catch (error) {
+        next(error);
+    }
 }
+
 
 export const logoutCaptain = async (req, res, next) => {
     const token = req.cookies.token || req.headers.authorization?.split(' ')[ 1 ];

@@ -50,11 +50,11 @@ const Home = () => {
         setWaitingForDriver(true)
         setRide(ride)
     })
-
+    
     socket.on('ride-started', ride => {
         console.log("ride")
         setWaitingForDriver(false)
-        navigate('/riding', { state: { ride } }) // Updated navigate to include ride data
+        navigate('/riding', { state: { ride } }) 
     })
 
 
@@ -97,7 +97,7 @@ const Home = () => {
             gsap.to(panelRef.current, {
                 height: '70%',
                 padding: 24
-                // opacity:1
+              
             })
             gsap.to(panelCloseRef.current, {
                 opacity: 1
@@ -106,7 +106,7 @@ const Home = () => {
             gsap.to(panelRef.current, {
                 height: '0%',
                 padding: 0
-                // opacity:0
+               
             })
             gsap.to(panelCloseRef.current, {
                 opacity: 0
@@ -198,53 +198,69 @@ const Home = () => {
     }
 
     return (
-        <div className='h-screen relative overflow-hidden'>
-            <img className='w-16 absolute left-5 top-5' src="https://upload.wikimedia.org/wikipedia/commons/c/cc/Uber_logo_2018.png" alt="" />
-            {/* <div className='h-screen w-screen'>
-                {/* image for temporary use  */}
-                {/* <LiveTracking />
-            </div> */} 
-            <div className=' flex flex-col justify-end h-screen absolute top-0 w-full'>
-                <div className='h-[30%] p-6 bg-white relative'>
-                    <h5 ref={panelCloseRef} onClick={() => {
-                        setPanelOpen(false)
-                    }} className='absolute opacity-0 right-6 top-6 text-2xl'>
+        <div className='h-screen relative overflow-hidden bg-gray-50'>
+            <img className='w-16 absolute left-5 top-5 z-10' src="https://upload.wikimedia.org/wikipedia/commons/c/cc/Uber_logo_2018.png" alt="" />
+            <button
+    onClick={() => navigate('/logout')}
+    className='absolute right-5 top-5 z-10 bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-md shadow-md'
+>
+    Logout
+</button>
+            <div className='flex flex-col justify-end h-screen absolute top-0 w-full items-center z-10'>
+                <div className='min-h-[30%] p-6 sm:px-10 md:px-16 bg-white w-full max-w-screen-md rounded-t-2xl shadow-xl'>
+                    <h5
+                        ref={panelCloseRef}
+                        onClick={() => setPanelOpen(false)}
+                        className='absolute opacity-0 right-6 top-6 text-2xl text-gray-600 hover:text-black cursor-pointer transition duration-100'
+                    >
                         <i className="ri-arrow-down-wide-line"></i>
                     </h5>
-                    <h4 className='text-2xl font-semibold'>Find a trip</h4>
-                    <form className='relative py-3' onSubmit={(e) => {
-                        submitHandler(e)
-                    }}>
-                        <div className="line absolute h-16 w-1 top-[50%] -translate-y-1/2 left-5 bg-gray-700 rounded-full"></div>
-                        <input
-                            onClick={() => {
-                                setPanelOpen(true)
-                                setActiveField('pickup')
-                            }}
-                            value={pickup}
-                            onChange={handlePickupChange}
-                            className='bg-[#eee] px-12 py-2 text-lg rounded-lg w-full'
-                            type="text"
-                            placeholder='Add a pick-up location'
-                        />
-                        <input
-                            onClick={() => {
-                                setPanelOpen(true)
-                                setActiveField('destination')
-                            }}
-                            value={destination}
-                            onChange={handleDestinationChange}
-                            className='bg-[#eee] px-12 py-2 text-lg rounded-lg w-full  mt-3'
-                            type="text"
-                            placeholder='Enter your destination' />
+    
+                    <h4 className='text-2xl font-semibold mb-4'>Find a trip</h4>
+    
+                    <form className='relative space-y-3' onSubmit={submitHandler}>
+                        <div className="line absolute h-20 w-[2px] top-[50%] -translate-y-1/2 left-6 bg-gray-400 rounded-full z-0"></div>
+    
+                        <div className="relative z-10">
+                            <i className="ri-map-pin-line absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 text-lg"></i>
+                            <input
+                                onClick={() => {
+                                    setPanelOpen(true)
+                                    setActiveField('pickup')
+                                }}
+                                value={pickup}
+                                onChange={handlePickupChange}
+                                className='bg-[#f2f2f2] pl-12 pr-4 py-3 text-base rounded-lg w-full focus:outline-none focus:ring-2 focus:ring-blue-400'
+                                type="text"
+                                placeholder='Add a pick-up location'
+                            />
+                        </div>
+    
+                        <div className="relative z-10">
+                            <i className="ri-map-pin-add-line absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 text-lg"></i>
+                            <input
+                                onClick={() => {
+                                    setPanelOpen(true)
+                                    setActiveField('destination')
+                                }}
+                                value={destination}
+                                onChange={handleDestinationChange}
+                                className='bg-[#f2f2f2] pl-12 pr-4 py-3 text-base rounded-lg w-full focus:outline-none focus:ring-2 focus:ring-blue-400'
+                                type="text"
+                                placeholder='Enter your destination'
+                            />
+                        </div>
                     </form>
+    
                     <button
                         onClick={findTrip}
-                        className='bg-black text-white px-4 py-2 rounded-lg mt-3 w-full'>
+                        className='bg-black text-white px-6 py-3 rounded-lg mt-4 w-full text-base hover:bg-gray-900 transition duration-300'
+                    >
                         Find Trip
                     </button>
                 </div>
-                <div ref={panelRef} className='bg-white h-0'>
+    
+                <div ref={panelRef} className='bg-white h-0 w-full max-w-screen-md overflow-hidden transition-all duration-300 ease-in-out'>
                     <LocationSearchPanel
                         suggestions={activeField === 'pickup' ? pickupSuggestions : destinationSuggestions}
                         setPanelOpen={setPanelOpen}
@@ -255,11 +271,16 @@ const Home = () => {
                     />
                 </div>
             </div>
+    
             <div ref={vehiclePanelRef} className='fixed w-full z-10 bottom-0 translate-y-full bg-white px-3 py-10 pt-12'>
                 <VehiclePanel
                     selectVehicle={setVehicleType}
-                    fare={fare} setConfirmRidePanel={setConfirmRidePanel} setVehiclePanel={setVehiclePanel} />
+                    fare={fare}
+                    setConfirmRidePanel={setConfirmRidePanel}
+                    setVehiclePanel={setVehiclePanel}
+                />
             </div>
+    
             <div ref={confirmRidePanelRef} className='fixed w-full z-10 bottom-0 translate-y-full bg-white px-3 py-6 pt-12'>
                 <ConfirmRide
                     createRide={createRide}
@@ -267,9 +288,22 @@ const Home = () => {
                     destination={destination}
                     fare={fare}
                     vehicleType={vehicleType}
-
-                    setConfirmRidePanel={setConfirmRidePanel} setVehicleFound={setVehicleFound} />
+                    setConfirmRidePanel={setConfirmRidePanel}
+                    setVehicleFound={setVehicleFound}
+                    vehicleImage={
+                        vehicleType === 'car'
+                            ? "https://swyft.pl/wp-content/uploads/2023/05/how-many-people-can-a-uberx-take.jpg"
+                            : vehicleType === 'moto'
+                            ? 'https://www.uber-assets.com/image/upload/f_auto,q_auto:eco,c_fill,h_638,w_956/v1649231091/assets/2c/7fa194-c954-49b2-9c6d-a3b8601370f5/original/Uber_Moto_Orange_312x208_pixels_Mobile.png'
+                            : vehicleType === 'auto'
+                            ? 'https://www.uber-assets.com/image/upload/f_auto,q_auto:eco,c_fill,h_368,w_552/v1648431773/assets/1d/db8c56-0204-4ce4-81ce-56a11a07fe98/original/Uber_Auto_558x372_pixels_Desktop.png'
+                            : ''
+                    }
+                   
+                    
+                />
             </div>
+    
             <div ref={vehicleFoundRef} className='fixed w-full z-10 bottom-0 translate-y-full bg-white px-3 py-6 pt-12'>
                 <LookingForDriver
                     createRide={createRide}
@@ -277,17 +311,40 @@ const Home = () => {
                     destination={destination}
                     fare={fare}
                     vehicleType={vehicleType}
-                    setVehicleFound={setVehicleFound} />
+                    setVehicleFound={setVehicleFound}
+                    vehicleImage={
+                        vehicleType === 'car'
+                            ? "https://swyft.pl/wp-content/uploads/2023/05/how-many-people-can-a-uberx-take.jpg"
+                            : vehicleType === 'moto'
+                            ? 'https://www.uber-assets.com/image/upload/f_auto,q_auto:eco,c_fill,h_638,w_956/v1649231091/assets/2c/7fa194-c954-49b2-9c6d-a3b8601370f5/original/Uber_Moto_Orange_312x208_pixels_Mobile.png'
+                            : vehicleType === 'auto'
+                            ? 'https://www.uber-assets.com/image/upload/f_auto,q_auto:eco,c_fill,h_368,w_552/v1648431773/assets/1d/db8c56-0204-4ce4-81ce-56a11a07fe98/original/Uber_Auto_558x372_pixels_Desktop.png'
+                            : ''
+                    }
+                />
             </div>
-            <div ref={waitingForDriverRef} className='fixed w-full  z-10 bottom-0  bg-white px-3 py-6 pt-12'>
+    
+            <div ref={waitingForDriverRef} className='fixed w-full z-10 bottom-0 bg-white px-3 py-6 pt-12'>
                 <WaitingForDriver
                     ride={ride}
                     setVehicleFound={setVehicleFound}
                     setWaitingForDriver={setWaitingForDriver}
-                    waitingForDriver={waitingForDriver} />
+                    waitingForDriver={waitingForDriver}
+                    vehicleImage={
+                        vehicleType === 'car'
+                            ? "https://swyft.pl/wp-content/uploads/2023/05/how-many-people-can-a-uberx-take.jpg"
+                            : vehicleType === 'moto'
+                            ? 'https://www.uber-assets.com/image/upload/f_auto,q_auto:eco,c_fill,h_638,w_956/v1649231091/assets/2c/7fa194-c954-49b2-9c6d-a3b8601370f5/original/Uber_Moto_Orange_312x208_pixels_Mobile.png'
+                            : vehicleType === 'auto'
+                            ? 'https://www.uber-assets.com/image/upload/f_auto,q_auto:eco,c_fill,h_368,w_552/v1648431773/assets/1d/db8c56-0204-4ce4-81ce-56a11a07fe98/original/Uber_Auto_558x372_pixels_Desktop.png'
+                            : ''
+                    }
+                />
             </div>
         </div>
     )
+    
+    
 }
 
 export default Home
