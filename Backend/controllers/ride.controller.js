@@ -28,7 +28,7 @@ export const createRideController = async (req, res) => {
       const lng = parseFloat(pickupCoordinates.lng);
       const radius = 2.0;
       
-console.log("pickupCoordinates:", pickupCoordinates);
+// console.log("pickupCoordinates:", pickupCoordinates);
 
       if (isNaN(ltd) || isNaN(lng) || isNaN(radius)) {
         return res.status(400).json({ error: "Invalid coordinates or radius" });
@@ -36,7 +36,7 @@ console.log("pickupCoordinates:", pickupCoordinates);
   
       
       const captainsInRadius = await getCaptainsInTheRadius(ltd, lng, radius);
-      console.log("Nearby Captains:", captainsInRadius);
+    //   console.log("Nearby Captains:", captainsInRadius);
   
       
       ride.otp = "";
@@ -101,9 +101,9 @@ export const getfare = async (req, res) => {
     const { pickup, destination } = req.query;
 
     try {
-        const fare = await getFare(pickup, destination);
+        const data = await getFare(pickup, destination);
         
-        return res.status(200).json(fare);
+        return res.status(200).json(data);
     } catch (err) {
         return res.status(500).json({ message: err.message });
     }
@@ -119,7 +119,7 @@ export const confirmride = async (req, res) => {
 
     try {
         const ride = await confirmRide({ rideId, captain: req.captain });
-        console.log(ride);
+        // console.log(ride);
         sendMessageToSocketId(ride.user.socketId, {
             event: 'ride-confirmed',
             data: ride
@@ -180,3 +180,29 @@ export const endride = async (req, res) => {
         return res.status(500).json({ message: err.message });
     } s
 }
+// ride.controller.js
+export const getRideCoordinates = async (req, res) => {
+    try {
+      const { rideId } = req.params;
+  
+      const ride = await rideModel.findById(rideId).populate('captain');
+      if (!ride || !ride.captain) {
+        return res.status(404).json({ message: "Ride or captain not found" });
+      }
+  
+      const pickupCoords = await getAddressCoordinate(ride.pickup);
+  
+      const captainCoords = ride.captain.location;
+  
+      res.status(200).json({
+        user: pickupCoords,
+        captain: {
+          lat: captainCoords?.ltd,
+          lng: captainCoords?.lng
+        }
+      });
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ message: 'Internal server error' });
+    }
+  };
