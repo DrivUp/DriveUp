@@ -12,9 +12,7 @@ import { SocketContext } from '../context/SocketContext';
 import { useContext } from 'react';
 import { UserDataContext } from '../context/UserContext';
 import { useNavigate } from 'react-router-dom';
-
-import MapView from './MapView';
-import UserLiveTracking from '../components/UserLiveTracking.jsx';
+import RouteMap from '../components/RouteMap';
 
 const Home = () => {
     const [pickup, setPickup] = useState('')
@@ -36,13 +34,23 @@ const Home = () => {
     const [destinationSuggestions, setDestinationSuggestions] = useState([])
     const [activeField, setActiveField] = useState(null)
     const [fare, setFare] = useState({})
-    const [distance,setDistance]=useState(null)
     const [vehicleType, setVehicleType] = useState(null)
     const [ride, setRide] = useState(null)
     const [currentPosition,setCurrentPosition]=useState(null)
     const navigate = useNavigate()
     const { socket } = useContext(SocketContext)
     const { user } = useContext(UserDataContext)
+
+
+    useEffect(() => {
+        if (ride) {
+          const interval = setInterval(async () => {
+            const res = await axios.get(`${import.meta.env.VITE_BASE_URL}/rides/coordinates/${ride._id}`);
+            // Update captain coordinates in state
+          }, 5000); // Update every 5 seconds
+          return () => clearInterval(interval);
+        }
+      }, [ride]);
 
 
     useEffect(() => {
@@ -207,7 +215,6 @@ const Home = () => {
 
 
         setFare(response.data.fare)
-        setDistance(response.data.distance)
 
 
     }
@@ -238,10 +245,13 @@ const Home = () => {
                 Logout
             </button>
             <div className='flex flex-col justify-end h-screen absolute top-0 w-full items-center z-10'>
-            {/* <div className='min-h-[0%] p-6 sm:px-10 md:px-16 bg-white w-full max-w-screen-md rounded-t-2xl shadow-xl'>
-                    <MapView />
-                    </div> */}
-                {currentPosition && ride && <UserLiveTracking rideId={ride._id}/>}
+                    <div className="h-[400px] w-full mb-4 rounded-lg overflow-hidden">
+                        <RouteMap 
+                            pickup={pickup} 
+                            destination={destination} 
+                            ride={ride} 
+                        />
+                    </div>
                 <div className='min-h-[30%] p-6 sm:px-10 md:px-16 bg-white w-full max-w-screen-md rounded-t-2xl shadow-xl'>
                     <h5
                         ref={panelCloseRef}
@@ -322,7 +332,6 @@ const Home = () => {
                     pickup={pickup}
                     destination={destination}
                     fare={fare}
-                    distance={distance}
                     vehicleType={vehicleType}
                     setConfirmRidePanel={setConfirmRidePanel}
                     setVehicleFound={setVehicleFound}
