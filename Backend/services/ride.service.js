@@ -1,4 +1,5 @@
 import rideModel from "../models/ride.model.js";
+import captainModel from "../models/captain.model.js";
 import {getDistanceTime1} from "../services/maps.service.js";
 import crypto from "crypto";
 export async function getFare(pickup, destination) {
@@ -34,8 +35,9 @@ export async function getFare(pickup, destination) {
         car: Math.round(baseFare.car + ((distanceTime.distance.value / 1000) * perKmRate.car) + ((distanceTime.duration.value / 60) * perMinuteRate.car)),
         moto: Math.round(baseFare.moto + ((distanceTime.distance.value / 1000) * perKmRate.moto) + ((distanceTime.duration.value / 60) * perMinuteRate.moto))
     };
-
-    return {fare:fare, distance: distanceTime.distance.value, duration: distanceTime.duration.value };
+    console.log("Fare Calculation:",distanceTime.distance.value/1000);
+    // console.log("Fare Calculation:",distanceTime.duration.value/3600);
+    return {fare:fare, distance: distanceTime.distance.value/1000};
 
 
 }
@@ -66,7 +68,8 @@ export const createRideService = async ({
         pickup,
         destination,
         otp: getOtp(6),
-        fare: fare[ vehicleType ]
+        fare: fare.fare[ vehicleType ],
+        distance: fare.distance,
     })
 
     return ride;
@@ -90,9 +93,20 @@ export const confirmRide = async ({
         _id: rideId
     }).populate('user').populate('captain').select('+otp');
 
+
     if (!ride) {
         throw new Error('Ride not found');
     }
+    await captainModel.findOneAndUpdate({
+        _id: captain._id
+    }, {
+        $inc: {
+            tripsCompleted: 1,
+            totalEarnings: ride.fare*0.1,
+            totalDistance: ride.distance,
+        }
+    })
+    
 
     return ride;
 

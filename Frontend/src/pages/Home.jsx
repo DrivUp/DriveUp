@@ -36,6 +36,7 @@ const Home = () => {
     const [destinationSuggestions, setDestinationSuggestions] = useState([])
     const [activeField, setActiveField] = useState(null)
     const [fare, setFare] = useState({})
+    const [distance,setDistance]=useState(null)
     const [vehicleType, setVehicleType] = useState(null)
     const [ride, setRide] = useState(null)
     const [currentPosition,setCurrentPosition]=useState(null)
@@ -206,6 +207,7 @@ const Home = () => {
 
 
         setFare(response.data.fare)
+        setDistance(response.data.distance)
 
 
     }
@@ -320,6 +322,7 @@ const Home = () => {
                     pickup={pickup}
                     destination={destination}
                     fare={fare}
+                    distance={distance}
                     vehicleType={vehicleType}
                     setConfirmRidePanel={setConfirmRidePanel}
                     setVehicleFound={setVehicleFound}

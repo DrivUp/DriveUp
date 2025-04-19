@@ -31,7 +31,7 @@ const CaptainDetails = () => {
 
             
             <div>
-                <h3 className='text-md font-semibold text-gray-700 mb-2'>Performance Stats</h3>
+                <h3 className='text-md font-semibold text-gray-700 mb-2'>Riding Information</h3>
                 <div className='grid grid-cols-3 gap-6 text-center bg-gray-100 rounded-xl p-4 shadow-inner'>
                     <div className='flex flex-col items-center'>
                         <i className="text-3xl text-blue-500 ri-timer-2-line mb-1"></i>
@@ -54,29 +54,36 @@ const CaptainDetails = () => {
             </div>
 
             <div className="mt-6">
-  <h3 className="text-lg md:text-xl font-bold text-gray-800 mb-4">Vehicle Information</h3>
-  
-  <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 bg-gray-100 p-6 rounded-2xl shadow-md border border-gray-100">
+  <h3 className="text-lg md:text-xl font-bold text-gray-800 capitalize mb-4">Vehicle Information</h3>
+
+  <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 bg-gray-100 p-6 rounded-2xl shadow-xl border border-gray-200">
 
     <div className="space-y-1">
-      <p className="text-sm text-gray-500">Vehicle Type</p>
-      <p className="text-base font-medium text-gray-900">{captain.vehicle.vehicleType}</p>
+      <label className="text-sm text-gray-500 capitalize tracking-wide">Vehicle Type</label>
+      <p className="text-base font-semibold text-gray-900 capitalize">
+        {captain.vehicle.vehicleType}
+      </p>
     </div>
 
     <div className="space-y-1">
-      <p className="text-sm text-gray-500">Color</p>
-      <p className="text-base font-medium text-gray-900">{captain.vehicle.color}</p>
-    </div>
-
-    
-    <div className="space-y-1">
-      <p className="text-sm text-gray-500">Plate Number</p>
-      <p className="text-base font-medium text-gray-900">{captain.vehicle.plate}</p>
+      <label className="text-sm text-gray-500 capitalize tracking-wide">Color</label>
+      <p className="text-base font-semibold text-gray-900 capitalize">
+        {captain.vehicle.color}
+      </p>
     </div>
 
     <div className="space-y-1">
-      <p className="text-sm text-gray-500">Capacity</p>
-      <p className="text-base font-medium text-gray-900">{captain.vehicle.capacity} passengers</p>
+      <label className="text-sm text-gray-500  tracking-wide">Plate Number</label>
+      <p className="text-base font-semibold text-gray-900 uppercase">
+        {captain.vehicle.plate}
+      </p>
+    </div>
+
+    <div className="space-y-1">
+      <label className="text-sm text-gray-500 capitalize tracking-wide">Capacity</label>
+      <p className="text-base font-semibold text-gray-900 capitalize">
+        {captain.vehicle.capacity} passengers
+      </p>
     </div>
   </div>
 </div>

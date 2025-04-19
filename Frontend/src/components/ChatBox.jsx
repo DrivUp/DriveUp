@@ -17,7 +17,7 @@ const ChatBox = ({
     return (
         <div className="fixed inset-0 z-50 bg-gray-50 bg-opacity-30 flex items-center justify-center px-4">
             <div className="w-full max-w-2xl h-[90vh] bg-gradient-to-br from-white to-gray-100 flex flex-col border shadow-xl rounded-lg overflow-hidden">
-                {/* Header */}
+                
                 <div className="flex items-center justify-between p-4 bg-gradient-to-r from-black to-gray-800 text-white shadow-md">
                     <h2 className="text-xl font-bold tracking-wide">What you want to chat ??</h2>
                     <button
@@ -28,7 +28,7 @@ const ChatBox = ({
                     </button>
                 </div>
 
-                {/* Messages */}
+                
                 <div className="flex-1 overflow-y-auto px-6 py-4 space-y-3 bg-white">
                     {chatMessages.map((msg, idx) => {
                         const isUser = msg.from === user._id || msg.fromId === user._id;
