@@ -102,7 +102,7 @@ export const confirmRide = async ({
     }, {
         $inc: {
             tripsCompleted: 1,
-            totalEarnings: ride.fare*0.1,
+            totalEarnings: ride.fare*0.9,
             totalDistance: ride.distance,
         }
     })
