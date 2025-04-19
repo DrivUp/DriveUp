@@ -65,121 +65,127 @@ const CaptainSignup = () => {
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-r from-[#f0f0f0] to-[#e8e8e8] px-4">
       <div className="w-full max-w-md bg-white shadow-2xl rounded-xl p-8 sm:p-10">
         <div className="flex flex-col items-center mb-8">
-          <h2 className="text-2xl font-semibold py-1.5">Create CarPooler Captain Account</h2>
+          <h2 className="text-2xl font-semibold py-1">Create Captain Account</h2>
           <p className="text-gray-500 text-sm mt-1">Start your journey</p>
         </div>
 
-        <form onSubmit={submitHandler} className="space-y-5">
-          {/* Full Name */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
-            <div className="flex gap-3">
-              <input
-                type="text"
-                required
-                placeholder="First Name"
-                className="w-1/2 px-4 py-2 rounded-lg bg-gray-100 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-100"
-                value={firstname}
-                onChange={(e) => setFirstName(e.target.value)}
-              />
-              <input
-                type="text"
-                required
-                placeholder="Last Name"
-                className="w-1/2 px-4 py-2 rounded-lg bg-gray-100 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-100"
-                value={lastname}
-                onChange={(e) => setLastName(e.target.value)}
-              />
-            </div>
-          </div>
+        <form onSubmit={submitHandler} className="space-y-2">
+  {/* Full Name */}
+  <div>
+    <label className="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
+    <div className="flex gap-3">
+      <input
+        type="text"
+        required
+        placeholder="First Name"
+        className="w-1/2 px-4 py-2 rounded-lg bg-gray-100 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-100"
+        value={firstname}
+        onChange={(e) => setFirstName(e.target.value)}
+      />
+      <input
+        type="text"
+        required
+        placeholder="Last Name"
+        className="w-1/2 px-4 py-2 rounded-lg bg-gray-100 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-100"
+        value={lastname}
+        onChange={(e) => setLastName(e.target.value)}
+      />
+    </div>
+  </div>
 
-          {/* Email */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Email Address</label>
-            <input
-              type="email"
-              required
-              placeholder="you@example.com"
-              className="w-full px-4 py-2 rounded-lg bg-gray-100 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-100"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-            />
-          </div>
+  {/* Email */}
+  <div>
+    <label className="block text-sm font-medium text-gray-700 mb-1">Email Address</label>
+    <input
+      type="email"
+      required
+      placeholder="you@example.com"
+      className="w-full px-4 py-2 rounded-lg bg-gray-100 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-100"
+      value={email}
+      onChange={(e) => setEmail(e.target.value)}
+    />
+  </div>
 
-          {/* Password */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Password</label>
-            <input
-              type="password"
-              required
-              placeholder="Create a strong password"
-              className="w-full px-4 py-2 rounded-lg bg-gray-100 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-100"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-            />
-          </div>
+  {/* Password */}
+  <div>
+    <label className="block text-sm font-medium text-gray-700 mb-1">Password</label>
+    <input
+      type="password"
+      required
+      placeholder="Create a strong password"
+      className="w-full px-4 py-2 rounded-lg bg-gray-100 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-100"
+      value={password}
+      onChange={(e) => setPassword(e.target.value)}
+    />
+  </div>
 
-          {/* Vehicle Color */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Vehicle Color</label>
-            <input
-              type="text"
-              required
-              placeholder="e.g. Red"
-              className="w-full px-4 py-2 rounded-lg bg-gray-100 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-100"
-              value={color}
-              onChange={(e) => setVehicleColor(e.target.value)}
-            />
-          </div>
+  {/* Vehicle Color + Plate */}
+  <div className="flex gap-3">
+    <div className="w-1/2">
+      <label className="block text-sm font-medium text-gray-700 mb-1">Vehicle Color</label>
+      <input
+        type="text"
+        required
+        placeholder="e.g. Red"
+        className="w-full px-4 py-2 rounded-lg bg-gray-100 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-100"
+        value={color}
+        onChange={(e) => setVehicleColor(e.target.value)}
+      />
+    </div>
+    <div className="w-1/2">
+      <label className="block text-sm font-medium text-gray-700 mb-1">Vehicle Plate</label>
+      <input
+        type="text"
+        required
+        placeholder="e.g. ABC-1234"
+        className="w-full px-4 py-2 rounded-lg bg-gray-100 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-100"
+        value={plate}
+        onChange={(e) => setVehiclePlate(e.target.value)}
+      />
+    </div>
+  </div>
 
-          {/* Vehicle Plate */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Vehicle Plate</label>
-            <input
-              type="text"
-              required
-              placeholder="e.g. ABC-1234"
-              className="w-full px-4 py-2 rounded-lg bg-gray-100 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-100"
-              value={plate}
-              onChange={(e) => setVehiclePlate(e.target.value)}
-            />
-          </div>
+  {/* Vehicle Capacity + Type */}
+  <div className="flex gap-3">
+    <div className="w-1/2">
+      <label className="block text-sm font-medium text-gray-700 mb-1">Vehicle Capacity</label>
+      <select
+        required
+        className="w-full px-4 py-2 rounded-lg bg-gray-100 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-100"
+        value={capacity}
+        onChange={(e) => setVehicleCapacity(e.target.value)}
+      >
+        <option value="">Select capacity</option>
+        {Array.from({ length: 4 }, (_, i) => (
+          <option key={i + 1} value={i + 1}>{i + 1}</option>
+        ))}
+      </select>
+    </div>
+    <div className="w-1/2">
+      <label className="block text-sm font-medium text-gray-700 mb-1">Vehicle Type</label>
+      <select
+        required
+        className="w-full px-4 py-2 rounded-lg bg-gray-100 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-100"
+        value={vehicleType}
+        onChange={(e) => setVehicleType(e.target.value)}
+      >
+        <option value="">Select type</option>
+        <option value="car">Car</option>
+        <option value="moto">Motorcycle</option>
+        <option value="auto">Auto</option>
+      </select>
+    </div>
+  </div>
 
-          {/* Vehicle Capacity */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Vehicle Capacity</label>
-            <input
-              type="number"
-              required
-              min="1"
-              placeholder="e.g. 4"
-              className="w-full px-4 py-2 rounded-lg bg-gray-100 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-100"
-              value={capacity}
-              onChange={(e) => setVehicleCapacity(e.target.value)}
-            />
-          </div>
+  {/* Submit Button */}
+  <button
+    type="submit"
+    className="w-full py-2 mt-3 bg-black text-white rounded-lg font-semibold hover:bg-gray-800 transition"
+  >
+    Create Account
+  </button>
+</form>
 
-          {/* Vehicle Type */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Vehicle Type</label>
-            <input
-              type="text"
-              required
-              placeholder="e.g. Sedan, SUV, etc."
-              className="w-full px-4 py-2 rounded-lg bg-gray-100 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-100"
-              value={vehicleType}
-              onChange={(e) => setVehicleType(e.target.value)}
-            />
-          </div>
-
-          {/* Submit Button */}
-          <button
-            type="submit"
-            className="w-full py-2 bg-black text-white rounded-lg font-semibold hover:bg-gray-800 transition"
-          >
-            Create Account
-          </button>
-        </form>
 
         <p className="text-center text-sm mt-4">
           Already have an account?{' '}
