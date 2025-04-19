@@ -74,20 +74,6 @@ const CaptainHome = () => {
 
     }
 
-    
-    function cancelConfirmedRide() {
-    if (!ride) return;
-
-    // Emit ride cancellation to the user
-    socket.emit('ride-cancelled-by-captain', {
-        rideId: ride._id,
-        userId: ride.user._id,
-        message: 'Driver has cancelled the ride. Please try again.',
-    });
-
-    setConfirmRidePopupPanel(false);
-    setRidePopupPanel(false);
-}
 
     useGSAP(function () {
         if (ridePopupPanel) {
@@ -158,7 +144,7 @@ const CaptainHome = () => {
     ride={ride}
     setConfirmRidePopupPanel={setConfirmRidePopupPanel}
     setRidePopupPanel={setRidePopupPanel}
-    cancelConfirmedRide={cancelConfirmedRide}
+    
 />
 
     </div>
