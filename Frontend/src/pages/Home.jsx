@@ -245,14 +245,14 @@ const Home = () => {
                 Logout
             </button>
             <div className='flex flex-col justify-end h-screen absolute top-0 w-full items-center z-10'>
-                    <div className="h-[400px] w-full mb-4 rounded-lg overflow-hidden">
+            <div className="h-[50vh] md:h-[40vh] w-full max-w-screen-md mb-4 rounded-lg overflow-hidden mx-auto">
                         <RouteMap 
                             pickup={pickup} 
                             destination={destination} 
                             ride={ride} 
                         />
                     </div>
-                <div className='min-h-[30%] p-6 sm:px-10 md:px-16 bg-white w-full max-w-screen-md rounded-t-2xl shadow-xl'>
+                <div className='h-[50%]  p-6 sm:px-10 md:px-16 bg-white w-full max-w-screen-md rounded-t-2xl shadow-xl'>
                     <h5
                         ref={panelCloseRef}
                         onClick={() => setPanelOpen(false)}
