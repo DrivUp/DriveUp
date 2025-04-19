@@ -102,10 +102,9 @@ const CaptainHome = () => {
     return (
         <div className='h-screen bg-gray-50'>
     {/* Header */}
-    <div className='fixed top-0 left-0 right-0 p-4 md:p-6 flex items-center justify-between bg-white shadow z-20'>
-        <img className='w-16' src="https://upload.wikimedia.org/wikipedia/commons/c/cc/Uber_logo_2018.png" alt="Uber Logo" />
+    <div className='fixed top-0 right-0 p-4 md:p-6 flex items-center justify-between   z-20'>
 
-        <div className='flex items-center gap-4'>
+        <div className='flex  gap-4'>
             <button
                 onClick={() => navigate('/captain-logout')}
                 className='bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-md shadow-md text-sm md:text-base'
