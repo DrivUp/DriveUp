@@ -44,7 +44,7 @@ export const getDistanceTime1 = async (origin, destination) => {
             if (response.data.rows[ 0 ].elements[ 0 ].status === 'ZERO_RESULTS') {
                 throw new Error('No routes found');
             }
-
+            console.log("Distance Matrix API response:", response.data.rows[ 0 ]);
             return response.data.rows[ 0 ].elements[ 0 ];
         } else {
             throw new Error('Unable to fetch distance and time');
