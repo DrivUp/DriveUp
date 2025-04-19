@@ -5,13 +5,28 @@ import { useGSAP } from '@gsap/react';
 import gsap from 'gsap';
 import { SocketContext } from '../context/SocketContext';
 import { CaptainDataContext } from '../context/CaptainContext';
-import ChatBox from '../components/ChatBox'; // ✅ Import ChatBox
+import ChatBox from '../components/ChatBox';
+import { MapContainer, TileLayer, Marker, Popup, Polyline } from 'react-leaflet';
+import L from 'leaflet';
+import 'leaflet/dist/leaflet.css';
+import axios from 'axios';
+
+// Configure Leaflet icons
+delete L.Icon.Default.prototype._getIconUrl;
+L.Icon.Default.mergeOptions({
+  iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon-2x.png',
+  iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png',
+  shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png'
+});
 
 const CaptainRiding = () => {
   const [finishRidePanel, setFinishRidePanel] = useState(false);
   const [chatOpen, setChatOpen] = useState(false);
   const [chatMessages, setChatMessages] = useState([]);
   const [messageInput, setMessageInput] = useState('');
+  const [pickupCoords, setPickupCoords] = useState(null);
+  const [destinationCoords, setDestinationCoords] = useState(null);
+  const [currentLocation, setCurrentLocation] = useState(null);
 
   const finishRidePanelRef = useRef(null);
   const location = useLocation();
@@ -21,6 +36,59 @@ const CaptainRiding = () => {
   const { captain } = useContext(CaptainDataContext);
   const navigate = useNavigate();
 
+  // Get coordinates for pickup and destination
+  useEffect(() => {
+    const getCoordinates = async () => {
+      if (rideData?.pickup && rideData?.destination) {
+        try {
+          // Get pickup coordinates
+          const pickupRes = await axios.get(`${import.meta.env.VITE_BASE_URL}/maps/get-coordinates`, {
+            params: { address: rideData.pickup },
+            headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+          });
+          setPickupCoords(pickupRes.data);
+
+          // Get destination coordinates
+          const destRes = await axios.get(`${import.meta.env.VITE_BASE_URL}/maps/get-coordinates`, {
+            params: { address: rideData.destination },
+            headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+          });
+          setDestinationCoords(destRes.data);
+        } catch (error) {
+          console.error('Error fetching coordinates:', error);
+        }
+      }
+    };
+
+    getCoordinates();
+  }, [rideData]);
+
+  // Get captain's current location
+  useEffect(() => {
+    const updateLocation = () => {
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(position => {
+          const coords = {
+            lat: position.coords.latitude,
+            lng: position.coords.longitude
+          };
+          setCurrentLocation(coords);
+          
+          socket.emit('update-location-captain', {
+            userId: captain._id,
+            location: coords
+          });
+        });
+      }
+    };
+
+    const locationInterval = setInterval(updateLocation, 5000);
+    updateLocation();
+
+    return () => clearInterval(locationInterval);
+  }, [captain._id, socket]);
+
+  // Socket events and other existing code remains the same
   useEffect(() => {
     socket.emit('join', { userType: 'captain', userId: captain._id });
 
@@ -35,7 +103,7 @@ const CaptainRiding = () => {
     return () => {
       socket.off('receive_message');
     };
-  }, [captain]);
+  }, [captain, navigate, socket]);
 
   const sendMessage = () => {
     if (!rideData || !rideData.user) return;
@@ -59,26 +127,117 @@ const CaptainRiding = () => {
     });
   }, [finishRidePanel]);
 
+  // Calculate map center
+  const getMapCenter = () => {
+    if (pickupCoords && currentLocation) {
+      return [
+        (pickupCoords.lat + currentLocation.lat) / 2,
+        (pickupCoords.lng + currentLocation.lng) / 2
+      ];
+    }
+    return pickupCoords || [0, 0];
+  };
+
+  // Calculate distance between captain and pickup
+  const calculateDistance = () => {
+    if (!pickupCoords || !currentLocation) return 'Calculating...';
+    
+    const R = 6371; // Earth's radius in km
+    const dLat = (pickupCoords.lat - currentLocation.lat) * Math.PI / 180;
+    const dLon = (pickupCoords.lng - currentLocation.lng) * Math.PI / 180;
+    const a = 
+      Math.sin(dLat/2) * Math.sin(dLat/2) +
+      Math.cos(currentLocation.lat * Math.PI / 180) * 
+      Math.cos(pickupCoords.lat * Math.PI / 180) * 
+      Math.sin(dLon/2) * Math.sin(dLon/2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+    const distance = R * c;
+    
+    return `${distance.toFixed(1)} KM away`;
+  };
+
   return (
     <div className='h-screen relative flex flex-col justify-end'>
 
       {/* Header */}
-      <div className='fixed p-6 top-0 flex items-center justify-between w-screen'>
+      <div className='fixed p-6 top-0 flex items-center justify-between w-screen z-50 bg-white'>
         <img className='w-16' src="https://upload.wikimedia.org/wikipedia/commons/c/cc/Uber_logo_2018.png" alt="" />
-        <Link to='/captain-home' className=' h-10 w-10 bg-white flex items-center justify-center rounded-full'>
+        <Link to='/captain-home' className='h-10 w-10 bg-white flex items-center justify-center rounded-full'>
           <i className="text-lg font-medium ri-logout-box-r-line"></i>
         </Link>
       </div>
 
+      {/* Map Section */}
+      <div className='h-screen w-full fixed top-0 z-0'>
+        {pickupCoords && (
+          <MapContainer 
+            center={getMapCenter()} 
+            zoom={13} 
+            style={{ height: '100%', width: '100%' }}
+          >
+            <TileLayer
+              url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+              attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+            />
+            
+            {/* Pickup Marker */}
+            {pickupCoords && (
+              <Marker position={[pickupCoords.lat, pickupCoords.lng]}>
+                <Popup>Pickup Location: {rideData?.pickup}</Popup>
+              </Marker>
+            )}
+            
+            {/* Destination Marker */}
+            {destinationCoords && (
+              <Marker position={[destinationCoords.lat, destinationCoords.lng]}>
+                <Popup>Destination: {rideData?.destination}</Popup>
+              </Marker>
+            )}
+
+            {/* Captain's Current Location */}
+            {currentLocation && (
+              <Marker position={[currentLocation.lat, currentLocation.lng]}>
+                <Popup>Your Location</Popup>
+              </Marker>
+            )}
+
+            {/* Route from current location to pickup */}
+            {currentLocation && pickupCoords && (
+              <Polyline
+                positions={[
+                  [currentLocation.lat, currentLocation.lng],
+                  [pickupCoords.lat, pickupCoords.lng]
+                ]}
+                color="blue"
+                weight={3}
+              />
+            )}
+
+            {/* Route from pickup to destination */}
+            {pickupCoords && destinationCoords && (
+              <Polyline
+                positions={[
+                  [pickupCoords.lat, pickupCoords.lng],
+                  [destinationCoords.lat, destinationCoords.lng]
+                ]}
+                color="green"
+                weight={3}
+                dashArray="5, 5"
+              />
+            )}
+          </MapContainer>
+        )}
+      </div>
+
       {/* Info Panel */}
-      <div className='h-1/5 p-6 flex items-center justify-between relative bg-yellow-400 pt-10'
+      <div className='h-1/5 p-6 flex items-center justify-between relative bg-yellow-400 pt-10 z-40'
         onClick={() => {
           setFinishRidePanel(true);
         }}
       >
         <h5 className='p-1 text-center w-[90%] absolute top-0'><i className="text-3xl text-gray-800 ri-arrow-up-wide-line"></i></h5>
-        <h4 className='text-xl font-semibold'>{'4 KM away'}</h4>
-        <button className=' bg-green-600 text-white font-semibold p-3 px-10 rounded-lg'>Complete Ride</button>
+        <h4 className='text-xl font-semibold'>{calculateDistance()}</h4>
+        <button className='bg-green-600 text-white font-semibold p-3 px-10 rounded-lg'>Complete Ride</button>
       </div>
 
       {/* Finish Ride Panel */}
@@ -87,11 +246,6 @@ const CaptainRiding = () => {
           ride={rideData}
           setFinishRidePanel={setFinishRidePanel}
         />
-      </div>
-
-      {/* Map (placeholder for now) */}
-      <div className='h-screen fixed w-screen top-0 z-[-1]'>
-        {/* <LiveTracking /> */}
       </div>
 
       {/* Chat Button */}
