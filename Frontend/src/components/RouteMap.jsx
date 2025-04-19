@@ -167,13 +167,13 @@ const RouteMap = ({ pickup, destination, ride }) => {
     <div className="h-full w-full relative">
       <MapContainer 
         center={center} 
-        zoom={13} 
+        zoom={5} 
         style={{ height: '100%', width: '100%' }}
         scrollWheelZoom={true}
       >
         <TileLayer
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+          
         />
 
         {/* Pickup Marker */}
