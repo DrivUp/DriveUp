@@ -117,13 +117,10 @@ const CaptainHome = () => {
         </div>
     </div>
 
-    {/* Main Image Section */}
-    <div className='pt-24 md:pt-28 h-[55%] md:h-[60%]'>
-      
-    </div>
+    
     
    
-    <div className='h-[45%] md:h-[40%] p-4 md:p-6 overflow-y-auto bg-white'>
+    <div className='h-[90%] p-4 md:p-6 mt-7 overflow-y-auto bg-white'>
         <CaptainDetails />
     </div>
 
