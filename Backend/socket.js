@@ -82,6 +82,24 @@ export function initializeSocket(server) {
             }
         });
         
+        socket.on('new-carpool-ride', (ride) => {
+            // Display carpool ride to captain differently
+            console.log('New carpool ride available:', ride);
+            // You might want to show this differently in the captain app
+        });
+        
+        // Handle passenger joining
+        socket.on('passenger-joined', (data) => {
+            // Notify captain about new passenger
+            console.log('New passenger joined:', data.passenger);
+        });
+        
+        // Handle carpool ride updates
+        socket.on('carpool-update', (update) => {
+            // Update carpool status for all participants
+            console.log('Carpool update:', update);
+        });
+
         socket.on('disconnect', () => {
             console.log(`Client disconnected: ${socket.id}`);
         });

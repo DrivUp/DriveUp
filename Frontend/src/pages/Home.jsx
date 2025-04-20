@@ -13,13 +13,17 @@ import { useContext } from 'react';
 import { UserDataContext } from '../context/UserContext';
 import { useNavigate } from 'react-router-dom';
 import RouteMap from '../components/RouteMap';
+import CarpoolOptions from '../components/CarpoolOption.jsx';
+import CarpoolRideForm from '../components/CarpoolRideForm';
 
 const Home = () => {
     const [pickup, setPickup] = useState('')
+    const [showCarpoolOptions, setShowCarpoolOptions] = useState(false);
+    const [showCarpoolForm, setShowCarpoolForm] = useState(false);
     const [destination, setDestination] = useState('')
     const [panelOpen, setPanelOpen] = useState(false)
-    const [destinationCoord,setDestinationCoord]=useState(null)
-    const [pickupCoord,setPickupCoord]=useState(null);
+    const [destinationCoord, setDestinationCoord] = useState(null)
+    const [pickupCoord, setPickupCoord] = useState(null);
     const vehiclePanelRef = useRef(null)
     const confirmRidePanelRef = useRef(null)
     const vehicleFoundRef = useRef(null)
@@ -36,22 +40,20 @@ const Home = () => {
     const [fare, setFare] = useState({})
     const [vehicleType, setVehicleType] = useState(null)
     const [ride, setRide] = useState(null)
-    const [currentPosition,setCurrentPosition]=useState(null)
+    const [currentPosition, setCurrentPosition] = useState(null)
     const navigate = useNavigate()
     const { socket } = useContext(SocketContext)
     const { user } = useContext(UserDataContext)
 
-
     useEffect(() => {
         if (ride) {
-          const interval = setInterval(async () => {
-            const res = await axios.get(`${import.meta.env.VITE_BASE_URL}/rides/coordinates/${ride._id}`);
-            // Update captain coordinates in state
-          }, 5000); // Update every 5 seconds
-          return () => clearInterval(interval);
+            const interval = setInterval(async () => {
+                const res = await axios.get(`${import.meta.env.VITE_BASE_URL}/rides/coordinates/${ride._id}`);
+                // Update captain coordinates in state
+            }, 5000); // Update every 5 seconds
+            return () => clearInterval(interval);
         }
-      }, [ride]);
-
+    }, [ride]);
 
     useEffect(() => {
         const successCallback = (position) => {
@@ -75,15 +77,11 @@ const Home = () => {
         return () => navigator.geolocation.clearWatch(watchId);
     }, []);
 
-
-
     useEffect(() => {
         socket.emit("join", { userType: "user", userId: user._id })
     }, [user])
 
     socket.on('ride-confirmed', ride => {
-
-
         setVehicleFound(false)
         setWaitingForDriver(true)
         setRide(ride)
@@ -95,7 +93,6 @@ const Home = () => {
         navigate('/riding', { state: { ride } })
     })
 
-
     const handlePickupChange = async (e) => {
         setPickup(e.target.value)
         try {
@@ -104,7 +101,6 @@ const Home = () => {
                 headers: {
                     Authorization: `Bearer ${localStorage.getItem('token')}`
                 }
-
             })
             setPickupSuggestions(response.data)
         } catch {
@@ -122,7 +118,6 @@ const Home = () => {
             })
             setDestinationSuggestions(response.data)
         } catch {
-
         }
     }
 
@@ -135,7 +130,6 @@ const Home = () => {
             gsap.to(panelRef.current, {
                 height: '70%',
                 padding: 24
-
             })
             gsap.to(panelCloseRef.current, {
                 opacity: 1
@@ -144,14 +138,12 @@ const Home = () => {
             gsap.to(panelRef.current, {
                 height: '0%',
                 padding: 0
-
             })
             gsap.to(panelCloseRef.current, {
                 opacity: 0
             })
         }
     }, [panelOpen])
-
 
     useGSAP(function () {
         if (vehiclePanel) {
@@ -201,23 +193,46 @@ const Home = () => {
         }
     }, [waitingForDriver])
 
-
-    async function findTrip() {
-        setVehiclePanel(true)
-        setPanelOpen(false)
-
+    const findTrip = async () => {
+        // First show carpool options
+        setShowCarpoolOptions(true);
+        
+        // Also get regular fare for comparison
         const response = await axios.get(`${import.meta.env.VITE_BASE_URL}/rides/get-fare`, {
             params: { pickup, destination },
             headers: {
                 Authorization: `Bearer ${localStorage.getItem('token')}`
             }
-        })
+        });
+        setFare(response.data.fare);
+    };
 
+    const createCarpoolRide = async (carpoolData) => {
+        try {
+            const response = await axios.post(`${import.meta.env.VITE_BASE_URL}/rides/create`, {
+                pickup,
+                destination,
+                ...carpoolData,
+                isCarpool: true
+            }, {
+                headers: {
+                    Authorization: `Bearer ${localStorage.getItem('token')}`
+                }
+            });
+            
+            setVehicleType(carpoolData.vehicleType);
+            setFare(prev => ({
+                ...prev,
+                [carpoolData.vehicleType]: response.data.fare
+            }));
+            
+            setShowCarpoolForm(false);
+            setVehiclePanel(true);
+        } catch (error) {
+            console.error('Error creating carpool:', error);
+        }
+    };
 
-        setFare(response.data.fare)
-
-
-    }
     async function createRide() {
         try {
             const response = await axios.post(`${import.meta.env.VITE_BASE_URL}/rides/create`, {
@@ -237,22 +252,23 @@ const Home = () => {
 
     return (
         <div className='h-screen relative overflow-hidden bg-gray-50'>
-
             <button
                 onClick={() => navigate('/logout')}
                 className='absolute right-5 top-5 z-10 bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-md shadow-md'
             >
                 Logout
             </button>
+            
             <div className='flex flex-col justify-end h-screen absolute top-0 w-full items-center z-10'>
-            <div className="h-[50vh] md:h-[40vh] w-full max-w-screen-md mb-4 rounded-lg overflow-hidden mx-auto">
-                        <RouteMap 
-                            pickup={pickup} 
-                            destination={destination} 
-                            ride={ride} 
-                        />
-                    </div>
-                <div className='h-[50%]  p-6 sm:px-10 md:px-16 bg-white w-full max-w-screen-md rounded-t-2xl shadow-xl'>
+                <div className="h-[50vh] md:h-[40vh] w-full max-w-screen-md mb-4 rounded-lg overflow-hidden mx-auto">
+                    <RouteMap 
+                        pickup={pickup} 
+                        destination={destination} 
+                        ride={ride} 
+                    />
+                </div>
+                
+                <div className='h-[50%] p-6 sm:px-10 md:px-16 bg-white w-full max-w-screen-md rounded-t-2xl shadow-xl'>
                     <h5
                         ref={panelCloseRef}
                         onClick={() => setPanelOpen(false)}
@@ -303,6 +319,13 @@ const Home = () => {
                     >
                         Find Trip
                     </button>
+
+                    <button
+                        onClick={() => setShowCarpoolForm(true)}
+                        className='bg-blue-600 text-white px-6 py-3 rounded-lg mt-2 w-full text-base hover:bg-blue-700 transition duration-300'
+                    >
+                        Create Carpool Ride
+                    </button>
                 </div>
 
                 <div ref={panelRef} className='bg-white h-0 w-full max-w-screen-md overflow-hidden transition-all duration-300 ease-in-out'>
@@ -316,6 +339,40 @@ const Home = () => {
                     />
                 </div>
             </div>
+
+            {/* Carpool Options Modal */}
+            {showCarpoolOptions && (
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+                    <CarpoolOptions
+                        pickup={pickup}
+                        destination={destination}
+                        onSelect={(data) => {
+                            setRide(data.ride);
+                            setVehicleType(data.ride.vehicleType);
+                            setFare(prev => ({
+                                ...prev,
+                                [data.ride.vehicleType]: data.fare
+                            }));
+                            setShowCarpoolOptions(false);
+                            setVehicleFound(true);
+                        }}
+                        onClose={() => {
+                            setShowCarpoolOptions(false);
+                            setVehiclePanel(true);
+                        }}
+                    />
+                </div>
+            )}
+
+            {/* Carpool Form Modal */}
+            {showCarpoolForm && (
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+                    <CarpoolRideForm
+                        onSubmit={createCarpoolRide}
+                        onCancel={() => setShowCarpoolForm(false)}
+                    />
+                </div>
+            )}
 
             <div ref={vehiclePanelRef} className='fixed w-full z-10 bottom-0 translate-y-full bg-white px-3 py-10 pt-12'>
                 <VehiclePanel
@@ -344,8 +401,6 @@ const Home = () => {
                                     ? 'https://www.uber-assets.com/image/upload/f_auto,q_auto:eco,c_fill,h_368,w_552/v1648431773/assets/1d/db8c56-0204-4ce4-81ce-56a11a07fe98/original/Uber_Auto_558x372_pixels_Desktop.png'
                                     : ''
                     }
-
-
                 />
             </div>
 
@@ -388,8 +443,6 @@ const Home = () => {
             </div>
         </div>
     )
-
-
 }
 
 export default Home

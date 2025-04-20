@@ -27,6 +27,8 @@ const CaptainRiding = () => {
   const [pickupCoords, setPickupCoords] = useState(null);
   const [destinationCoords, setDestinationCoords] = useState(null);
   const [currentLocation, setCurrentLocation] = useState(null);
+  const [passengers, setPassengers] = useState([]);
+  const [isCarpool, setIsCarpool] = useState(false);
 
   const finishRidePanelRef = useRef(null);
   const location = useLocation();
@@ -62,6 +64,37 @@ const CaptainRiding = () => {
 
     getCoordinates();
   }, [rideData]);
+
+  // Check if ride is carpool and fetch passengers
+  useEffect(() => {
+    if (rideData) {
+      setIsCarpool(rideData.isCarpool || false);
+      
+      // If it's a carpool, fetch passengers
+      if (rideData.isCarpool) {
+        fetchPassengers();
+      }
+    }
+  }, [rideData]);
+
+  const fetchPassengers = async () => {
+    try {
+      const response = await axios.get(`${import.meta.env.VITE_BASE_URL}/carpool/find`, {
+        params: { rideId: rideData._id },
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('token')}`
+        }
+      });
+      
+      // Find the carpool for this ride
+      const carpool = response.data.find(c => c.carpool.ride._id === rideData._id);
+      if (carpool) {
+        setPassengers(carpool.carpool.passengers);
+      }
+    } catch (error) {
+      console.error('Error fetching passengers:', error);
+    }
+  };
 
   // Get captain's current location
   useEffect(() => {
@@ -166,6 +199,31 @@ const CaptainRiding = () => {
           <i className="text-lg font-medium ri-logout-box-r-line"></i>
         </Link>
       </div>
+
+      {/* Passenger list for carpools */}
+      {isCarpool && passengers.length > 0 && (
+        <div className="absolute top-20 left-0 right-0 bg-white mx-4 rounded-lg shadow-lg z-40 p-4">
+          <h3 className="font-bold mb-2">Passengers ({passengers.length})</h3>
+          <div className="space-y-2">
+            {passengers.map((passenger, index) => (
+              <div key={index} className="flex items-center gap-3 p-2 border-b">
+                <div className="h-10 w-10 rounded-full bg-gray-200 flex items-center justify-center">
+                  <i className="ri-user-line"></i>
+                </div>
+                <div>
+                  <h4 className="font-medium">{passenger.user.fullname.firstname}</h4>
+                  <p className="text-sm text-gray-500">
+                    {passenger.pickup} → {passenger.destination}
+                  </p>
+                </div>
+                <div className="ml-auto font-semibold">
+                  ₹{passenger.fare}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Map Section */}
       <div className='h-screen w-full fixed top-0 z-0'>

@@ -56,7 +56,26 @@ const rideSchema = new mongoose.Schema({
         select: false,
         required: true,
     },
-})
+    //added for carpool
+    isCarpool: {
+        type: Boolean,
+        default: false
+    },
+    availableSeats: {
+        type: Number,
+        default: 1
+    },
+    waypoints: [{
+        address: String,
+        coordinates: {
+            lat: Number,
+            lng: Number
+        }
+    }],
+    departureTime: {
+        type: Date
+    }
+});
 
 const rideModel = mongoose.model('ride', rideSchema);
 
