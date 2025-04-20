@@ -25,7 +25,8 @@ const Riding = () => {
         })
 
         socket.on("ride-ended", () => {
-            navigate('/home')
+            navigate('/ride-review', { state: { ride } });
+            
         })
 
         return () => {
