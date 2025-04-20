@@ -4,94 +4,60 @@ import rideModel from "../models/ride.model.js";
 import {getAddressCoordinate,getCaptainsInTheRadius} from "../services/maps.service.js";
 import captainModel from "../models/captain.model.js";
 import {sendMessageToSocketId} from "../socket.js";
+import Carpool from '../models/carpool.model.js';
+
 
 export const createRideController = async (req, res) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() });
-    }
-  
-    const { userId, pickup, destination, vehicleType } = req.body;
-  
-    try {
-     
+  }
+
+  const { pickup, destination, vehicleType, isCarpool, availableSeats, departureTime } = req.body;
+
+  try {
       const ride = await createRideService({
-        user: req.user._id,
-        pickup,
-        destination,
-        vehicleType
+          user: req.user._id,
+          pickup,
+          destination,
+          vehicleType,
+          isCarpool: isCarpool || false,
+          availableSeats: availableSeats || 1,
+          departureTime
       });
-  
-     
+
       const pickupCoordinates = await getAddressCoordinate(pickup);
       const ltd = parseFloat(pickupCoordinates.lat);
       const lng = parseFloat(pickupCoordinates.lng);
       const radius = 2.0;
-      
-// console.log("pickupCoordinates:", pickupCoordinates);
 
       if (isNaN(ltd) || isNaN(lng) || isNaN(radius)) {
-        return res.status(400).json({ error: "Invalid coordinates or radius" });
+          return res.status(400).json({ error: "Invalid coordinates or radius" });
       }
-  
-      
+
       const captainsInRadius = await getCaptainsInTheRadius(ltd, lng, radius);
-    //   console.log("Nearby Captains:", captainsInRadius);
-  
       
       ride.otp = "";
-  
-      
+
       const rideWithUser = await rideModel.findOne({ _id: ride._id }).populate("user");
-  
-      captainsInRadius.forEach((captain) => {
-        sendMessageToSocketId(captain.socketId, {
-          event: "new-ride",
-          data: rideWithUser
-        });
-      });
-  
+
+      // Notify captains based on ride type
+      const eventName = ride.isCarpool ? "new-carpool-ride" : "new-ride";
       
+      captainsInRadius.forEach((captain) => {
+          sendMessageToSocketId(captain.socketId, {
+              event: eventName,
+              data: rideWithUser
+          });
+      });
+
       return res.status(201).json(rideWithUser);
-    } catch (err) {
+  } catch (err) {
       console.error(err);
       return res.status(500).json({ message: err.message });
-    }
-  };
+  }
+};
 
-// export const createRdeController = async (req, res) => {
-//     const errors = validationResult(req);
-//     if (!errors.isEmpty()) {
-//         return res.status(400).json({ errors: errors.array() });
-//     }
-
-//     const { userId, pickup, destination, vehicleType } = req.body;
-
-//     try {
-//         const ride = await createRideService({ user: req.user._id, pickup, destination, vehicleType });
-//         res.status(201).json(ride);
-//         const pickupCoordinates = await getAddressCoordinate(pickup);
-//         const captainsInRadius = await getCaptainsInTheRadius(pickupCoordinates.ltd, pickupCoordinates.lng, 2);
-
-//         ride.otp = ""
-
-//         const rideWithUser = await rideModel.findOne({ _id: ride._id }).populate('user');
-
-//         captainsInRadius.map(captain => {
-
-//             sendMessageToSocketId(captain.socketId, {
-//                 event: 'new-ride',
-//                 data: rideWithUser
-//             })
-
-//         })
-//     } catch (err) {
-
-//         console.log(err);
-//         return res.status(500).json({ message: err.message });
-//     }
-
-// };
 export const getfare = async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -133,6 +99,7 @@ export const confirmride = async (req, res) => {
     }
 }
 
+// Modify the startride controller to handle carpool rides differently:
 export const startride = async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -142,16 +109,84 @@ export const startride = async (req, res) => {
     const { rideId, otp } = req.query;
 
     try {
-        const ride = await startRide({ rideId, otp, captain: req.captain });
+        const ride = await rideModel.findOne({
+            _id: rideId
+        }).populate('user').populate('captain').select('+otp');
 
-        console.log(ride);
+        if (!ride) {
+            throw new Error('Ride not found');
+        }
 
-        sendMessageToSocketId(ride.user.socketId, {
-            event: 'ride-started',
-            data: ride
-        })
+        // Handle carpool rides differently
+        if (ride.isCarpool) {
+            const carpool = await Carpool.findOne({ ride: rideId });
+            if (!carpool) {
+                throw new Error('Carpool not found');
+            }
 
-        return res.status(200).json(ride);
+            // For carpool, captain verifies their OTP separately
+            if (ride.otp !== otp) {
+                throw new Error('Invalid OTP');
+            }
+
+            // Update captain's verification status
+            ride.captainVerified = true;
+            await ride.save();
+
+            // Check if all passengers have also verified
+            const allPassengersVerified = carpool.passengers.every(p => p.status === 'otp-verified');
+            
+            if (allPassengersVerified && ride.captainVerified) {
+                await rideModel.findOneAndUpdate({
+                    _id: rideId
+                }, {
+                    status: 'ongoing'
+                });
+
+                // Notify all participants
+                sendMessageToSocketId(ride.user.socketId, {
+                    event: 'ride-started',
+                    data: ride
+                });
+
+                carpool.passengers.forEach(async (passenger) => {
+                    const user = await userModel.findById(passenger.user);
+                    if (user.socketId) {
+                        sendMessageToSocketId(user.socketId, {
+                            event: 'ride-started',
+                            data: ride
+                        });
+                    }
+                });
+            }
+
+            return res.status(200).json({ 
+                message: 'Captain OTP verified', 
+                rideStarted: allPassengersVerified && ride.captainVerified 
+            });
+        } else {
+            // Original non-carpool logic
+            if (ride.status !== 'accepted') {
+                throw new Error('Ride not accepted');
+            }
+
+            if (ride.otp !== otp) {
+                throw new Error('Invalid OTP');
+            }
+
+            await rideModel.findOneAndUpdate({
+                _id: rideId
+            }, {
+                status: 'ongoing'
+            });
+
+            sendMessageToSocketId(ride.user.socketId, {
+                event: 'ride-started',
+                data: ride
+            });
+
+            return res.status(200).json(ride);
+        }
     } catch (err) {
         return res.status(500).json({ message: err.message });
     }

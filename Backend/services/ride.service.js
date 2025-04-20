@@ -1,7 +1,9 @@
 import rideModel from "../models/ride.model.js";
 import captainModel from "../models/captain.model.js";
 import {getDistanceTime1} from "../services/maps.service.js";
+import Carpool from "../models/carpool.model.js";
 import crypto from "crypto";
+
 export async function getFare(pickup, destination) {
 
     if (!pickup || !destination) {
@@ -42,6 +44,58 @@ export async function getFare(pickup, destination) {
 
 }
 
+// Add these new functions to ride.service.js:
+
+export const generatePassengerOTP = async (carpoolId, userId) => {
+    const carpool = await Carpool.findById(carpoolId);
+    if (!carpool) {
+        throw new Error('Carpool not found');
+    }
+
+    const passenger = carpool.passengers.find(p => p.user.toString() === userId.toString());
+    if (!passenger) {
+        throw new Error('Passenger not found in this carpool');
+    }
+
+    // Generate OTP
+    passenger.otp = getOtp(6);
+    await carpool.save();
+
+    return passenger.otp;
+};
+
+export const verifyPassengerOTP = async (carpoolId, userId, otp) => {
+    const carpool = await Carpool.findById(carpoolId).populate('ride');
+    if (!carpool) {
+        throw new Error('Carpool not found');
+    }
+
+    const passenger = carpool.passengers.find(p => p.user.toString() === userId.toString());
+    if (!passenger) {
+        throw new Error('Passenger not found in this carpool');
+    }
+
+    if (passenger.otp !== otp) {
+        throw new Error('Invalid OTP');
+    }
+
+    // Update passenger status
+    passenger.status = 'otp-verified';
+    await carpool.save();
+
+    // Check if all passengers have verified OTP
+    const allVerified = carpool.passengers.every(p => p.status === 'otp-verified');
+    if (allVerified) {
+        // Update ride status to ongoing for all
+        await rideModel.findByIdAndUpdate(carpool.ride._id, { status: 'ongoing' });
+        
+        // Notify all passengers that ride has started
+        return { verified: true, rideStarted: true };
+    }
+
+    return { verified: true, rideStarted: false };
+};
+
 
 function getOtp(num) {
     function generateOtp(num) {
@@ -53,7 +107,7 @@ function getOtp(num) {
 
 
 export const createRideService = async ({
-    user, pickup, destination, vehicleType
+    user, pickup, destination, vehicleType, isCarpool = false, availableSeats = 1, departureTime
 }) => {
     if (!user || !pickup || !destination || !vehicleType) {
         throw new Error('All fields are required');
@@ -61,19 +115,34 @@ export const createRideService = async ({
 
     const fare = await getFare(pickup, destination);
 
-
-
-    const ride = rideModel.create({
+    const rideData = {
         user,
         pickup,
         destination,
         otp: getOtp(6),
-        fare: fare.fare[ vehicleType ],
+        fare: fare.fare[vehicleType],
         distance: fare.distance,
-    })
+        isCarpool,
+        availableSeats
+    };
+
+    if (departureTime) {
+        rideData.departureTime = departureTime;
+    }
+
+    const ride = await rideModel.create(rideData);
+    
+    // If it's a carpool, create a carpool entry
+    if (isCarpool) {
+        await Carpool.create({
+            ride: ride._id,
+            status: 'searching'
+        });
+    }
 
     return ride;
-}
+};
+
 
 export const confirmRide = async ({
     rideId, captain
