@@ -2,7 +2,7 @@ import express from 'express';
 import { body,query} from 'express-validator';
 import  {authUser}  from '../middlewares/auth.middleware.js';
 import { authCaptain } from '../middlewares/auth.middleware.js';
-import { createRideController ,getfare,confirmride,startride,endride,getRideCoordinates} from '../controllers/ride.controller.js';
+import { createRideController ,getfare,confirmride,startride,endride,getRideCoordinates,rateCaptain} from '../controllers/ride.controller.js';
 const router = express.Router();
 
 
@@ -42,7 +42,10 @@ router.post('/end-ride',
     body('rideId').isMongoId().withMessage('Invalid ride id'),
     endride
 )
-
+console.log("Hello from routes");
+router.post('/review',
+    rateCaptain
+)
 router.get('/coordinates/:rideId',
     getRideCoordinates
 );
