@@ -1,4 +1,4 @@
 # CarPooler
 Ride Sharing Platform For People
-Author-Ujjwal
+Author-Sparsh
 for people
