@@ -1,4 +1,4 @@
 # CarPooler
-Ride Sharing Platform For People
+Ride Booking Platform For People
 Author-Sparsh
 for people
